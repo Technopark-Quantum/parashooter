@@ -22,7 +22,7 @@ COLORS = [WHITE, BLACK, RED, GREEN, BLUE]
 
 FPS = 60
 
-BULLET_SPEED = 5
+BULLET_SPEED = 10
 
 # Секция описания
 
