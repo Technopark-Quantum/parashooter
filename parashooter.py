@@ -22,7 +22,7 @@ COLORS = [WHITE, BLACK, RED, GREEN, BLUE]
 
 FPS = 60
 
-BULLET_SPEED = 5
+BULLET_SPEED = 50
 
 # Секция описания
 
@@ -38,9 +38,9 @@ class Player(pygame.sprite.Sprite):
     x = 0
     y = 0
     angle_rad = 0
-    fire_delay = 0.5
+    fire_delay = 0.0
     last_fire_time = 0
-    color = RED
+    color = GREEN
 
     def __init__(self, state):
         width, height = state.sc.get_size()
@@ -72,9 +72,9 @@ class Player(pygame.sprite.Sprite):
 
 class Bullet(pygame.sprite.Sprite):
     velocity = (0,0)
-    long_range = 200 # дальнобойность
+    long_range = 800 # дальнобойность
     distance = 0
-    color = BLUE
+    color = WHITE
 
     def __init__(self, x, y, velocity):
         self.velocity = velocity
