@@ -1,8 +1,7 @@
 # Секция импортов
-import random
 import sys
 from time import time
-from math import sin, cos, atan2, degrees, pi, sqrt
+from math import sin, cos, atan2, pi, sqrt
 
 import pygame
 
@@ -72,7 +71,7 @@ class Player(pygame.sprite.Sprite):
 
 class Bullet(pygame.sprite.Sprite):
     velocity = (0,0)
-    long_range = 300 # дальнобойность
+    long_range = 200 # дальнобойность
     distance = 0
     color = BLUE
 
@@ -100,32 +99,32 @@ class Target:
 
 
 # Инициализация
-pygame.init()
 
-clock = pygame.time.Clock()
+def main():
+    pygame.init()
 
-state = State()
-player = Player(state)
+    clock = pygame.time.Clock()
+    state = State()
+    player = Player(state)
 
-
-while 1:
-    state.sc.fill(BLACK)
-    for event in pygame.event.get():
-        if event.type == pygame.QUIT:
-            sys.exit()
-    keys = pygame.key.get_pressed()
-    pos = pygame.mouse.get_pos()
-    buttons = pygame.mouse.get_pressed()
-
-
-    player.rotate(pos)
-    if buttons[0]:
-        player.fire(state)
-
-    state.sc.blit(player.image,
+    while 1:
+        state.sc.fill(BLACK)
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                sys.exit()
+        # keys = pygame.key.get_pressed()
+        mouse = pygame.mouse.get_pos()
+        mouse_buttons = pygame.mouse.get_pressed()
+        player.rotate(mouse)
+        if mouse_buttons[0]:
+            player.fire(state)
+        state.sc.blit(player.image,
                   (player.x - 15, player.y - 15))
-    state.bullets.draw(state.sc)
-    pygame.display.update()
+        state.bullets.draw(state.sc)
+        pygame.display.update()
+        clock.tick(FPS)
+        state.bullets.update()
 
-    clock.tick(FPS)
-    state.bullets.update()
+
+if __name__ == '__main__':
+    main()
