@@ -67,6 +67,7 @@ class Player(pygame.sprite.Sprite):
             BULLET_SPEED * sin(self.angle_rad))
         if now - self.last_fire_time > self.fire_delay:
             Bullet(self.x, self.y, velocity).add(state.bullets)
+            self.last_fire_time = now
 
 
 class Bullet(pygame.sprite.Sprite):
