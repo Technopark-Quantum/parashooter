@@ -72,9 +72,9 @@ class Player(pygame.sprite.Sprite):
 
 class Bullet(pygame.sprite.Sprite):
     velocity = (0,0)
-    long_range = 400 # дальнобойность
+    long_range = 800
     distance = 0
-    color = GREEN
+    color = WHITE
 
     def __init__(self, x, y, velocity):
         self.velocity = velocity
