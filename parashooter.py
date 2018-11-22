@@ -40,7 +40,7 @@ class Player(pygame.sprite.Sprite):
     angle_rad = 0
     fire_delay = 0
     last_fire_time = 0
-    color = RED
+    color = GREEN
 
     def __init__(self, state):
         width, height = state.sc.get_size()
@@ -72,7 +72,7 @@ class Player(pygame.sprite.Sprite):
 
 class Bullet(pygame.sprite.Sprite):
     velocity = (0,0)
-    long_range = 10000 # дальнобойность
+    long_range = 400 # дальнобойность
     distance = 0
     color = GREEN
 
