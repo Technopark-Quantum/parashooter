@@ -24,7 +24,6 @@ FPS = 60
 
 BULLET_SPEED = 30
 
-
 # Секция описания
 
 class State:
