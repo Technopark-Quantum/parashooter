@@ -41,13 +41,15 @@ class Player(pygame.sprite.Sprite):
     fire_delay = 0
     last_fire_time = 0
     color = GREEN
+    hp = 10
+    scores = 0
 
     def __init__(self, state):
         width, height = state.sc.get_size()
         self.x = width / 30
         self.y = height / 30
         pygame.sprite.Sprite.__init__(self)
-        self.image = pygame.Surface((10, 10))
+        self.image = pygame.Surface((30, 30))
         self.image.fill(self.color)
         self.rect = self.image.get_rect()
         state.player = self
@@ -79,7 +81,7 @@ class Bullet(pygame.sprite.Sprite):
     def __init__(self, x, y, velocity):
         self.velocity = velocity
         pygame.sprite.Sprite.__init__(self)
-        self.image = pygame.Surface((50, 50))
+        self.image = pygame.Surface((2, 2))
         self.image.fill(self.color)
         self.rect = self.image.get_rect(center=(x, y))
 
@@ -107,14 +109,21 @@ def main():
     clock = pygame.time.Clock()
     state = State()
     player = Player(state)
+    font = pygame.font.SysFont('arial', 16)
+    scores = font.render('Очки:' + str(player.scores), 1, WHITE)	
+    hp = font.render('Жизни:' + str(player.hp), 0, WHITE)	
+  
 
     while 1:
         state.sc.fill(BLACK)
+        state.sc.blit(scores, (50, 10))
+        state.sc.blit(hp, (100, 10))
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 sys.exit()
         # keys = pygame.key.get_pressed()
         mouse = pygame.mouse.get_pos()
+        print(mouse)
         mouse_buttons = pygame.mouse.get_pressed()
         player.rotate(mouse)
         if mouse_buttons[0]:
