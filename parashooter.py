@@ -8,8 +8,8 @@ import pygame
 # Секция констант
 # Тут будем хранить настройки игры
 
-WIDTH = 800
-HEIGHT = 600
+WIDTH = 1600
+HEIGHT = 1500
 
 
 WHITE = (255, 255, 255)
@@ -47,8 +47,8 @@ class Player(pygame.sprite.Sprite):
         self.x = width / 2
         self.y = height / 2
         pygame.sprite.Sprite.__init__(self)
-        self.image = pygame.Surface((30, 30))
-        self.image.fill(self.color)
+        self.image = pygame.image.load('images/hero.png')
+        self.image.set_colorkey((255, 255, 255))
         self.rect = self.image.get_rect()
         state.player = self
 
