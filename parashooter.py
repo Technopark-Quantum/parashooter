@@ -38,16 +38,16 @@ class Player(pygame.sprite.Sprite):
     x = 0
     y = 0
     angle_rad = 0
-    fire_delay = 0
+    fire_delay = 0.0
     last_fire_time = 0
     color = GREEN
 
     def __init__(self, state):
         width, height = state.sc.get_size()
-        self.x = width / 30
-        self.y = height / 30
+        self.x = width / 2
+        self.y = height / 2
         pygame.sprite.Sprite.__init__(self)
-        self.image = pygame.Surface((10, 10))
+        self.image = pygame.Surface((30, 30))
         self.image.fill(self.color)
         self.rect = self.image.get_rect()
         state.player = self
@@ -59,6 +59,10 @@ class Player(pygame.sprite.Sprite):
         rads = atan2(-y,x)
         rads %= 2*pi
         self.angle_rad = rads
+        
+    def move(self, x, y):
+        self.x = self.x + x
+        self.y = self.y + y
 
     def fire(self, state):
         now = time()
@@ -67,19 +71,19 @@ class Player(pygame.sprite.Sprite):
             BULLET_SPEED * sin(self.angle_rad))
         if now - self.last_fire_time > self.fire_delay:
             Bullet(self.x, self.y, velocity).add(state.bullets)
-            self.last_fire_time = now 
+            self.last_fire_time = now
 
 
 class Bullet(pygame.sprite.Sprite):
     velocity = (0,0)
-    long_range = 800
+    long_range = 800 # дальнобойность
     distance = 0
     color = WHITE
 
     def __init__(self, x, y, velocity):
         self.velocity = velocity
         pygame.sprite.Sprite.__init__(self)
-        self.image = pygame.Surface((50, 50))
+        self.image = pygame.Surface((10, 10))
         self.image.fill(self.color)
         self.rect = self.image.get_rect(center=(x, y))
 
@@ -113,10 +117,18 @@ def main():
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 sys.exit()
-        # keys = pygame.key.get_pressed()
+        keys = pygame.key.get_pressed()
         mouse = pygame.mouse.get_pos()
         mouse_buttons = pygame.mouse.get_pressed()
         player.rotate(mouse)
+        if keys[pygame.K_w]:
+            player.move(x=0, y=-1)
+        if keys[pygame.K_a]:
+            player.move(x=-1, y=0)
+        if keys[pygame.K_s]:
+            player.move(x=0, y=1)
+        if keys[pygame.K_d]:
+            player.move(x=1, y=0)
         if mouse_buttons[0]:
             player.fire(state)
         state.sc.blit(player.image,
