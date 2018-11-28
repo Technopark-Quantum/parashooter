@@ -30,17 +30,19 @@ class State:
     def __init__(self):
         self.player = None
         self.bullets = pygame.sprite.Group()
-        self.targets = pygame.sprite.Group()
+        self.enemies = pygame.sprite.Group()
         self.sc = pygame.display.set_mode((WIDTH, HEIGHT))
 
 
 class Player(pygame.sprite.Sprite):
-    x = 0
-    y = 0
+    x = 300
+    y = 400
     angle_rad = 0
-    fire_delay = 0.0
+    fire_delay = 0.0001
     last_fire_time = 0
     color = GREEN
+    hp = 10
+    scores = 0
 
     def __init__(self, state):
         width, height = state.sc.get_size()
@@ -72,6 +74,7 @@ class Player(pygame.sprite.Sprite):
         if now - self.last_fire_time > self.fire_delay:
             Bullet(self.x, self.y, velocity).add(state.bullets)
             self.last_fire_time = now
+            
 
 
 class Bullet(pygame.sprite.Sprite):
@@ -83,7 +86,7 @@ class Bullet(pygame.sprite.Sprite):
     def __init__(self, x, y, velocity):
         self.velocity = velocity
         pygame.sprite.Sprite.__init__(self)
-        self.image = pygame.Surface((10, 10))
+        self.image = pygame.Surface((2, 2))
         self.image.fill(self.color)
         self.rect = self.image.get_rect(center=(x, y))
 
@@ -96,11 +99,17 @@ class Bullet(pygame.sprite.Sprite):
         self.distance += sqrt(x_vel**2 + y_vel**2)
 
 
-class Target:
-    x = 0
-    y = 0
-    def __init__(self):
-        pass
+class Enemy(Player):
+    x = 300
+    y = 100
+    color = RED
+    angle_rad = 4.71239
+    def __init__(self, state):
+        pygame.sprite.Sprite.__init__(self)
+        self.image = pygame.Surface((30, 30))
+        self.image.fill(self.color)
+        self.rect = self.image.get_rect()
+        
 
 
 # Инициализация
@@ -111,11 +120,18 @@ def main():
     clock = pygame.time.Clock()
     state = State()
     player = Player(state)
-
+    enemy = Enemy(state)
+    font = pygame.font.SysFont('arial', 16)
+    scores = font.render('Очки:' + str(player.scores), 1, WHITE)	
+    hp = font.render('Жизни:' + str(player.hp), 0, WHITE)	
+  
     while 1:
         state.sc.fill(BLACK)
+        state.sc.blit(scores, (100, 10))
+        state.sc.blit(hp, (170, 10))
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
+                pygame.quit()
                 sys.exit()
         keys = pygame.key.get_pressed()
         mouse = pygame.mouse.get_pos()
@@ -131,8 +147,11 @@ def main():
             player.move(x=1, y=0)
         if mouse_buttons[0]:
             player.fire(state)
+        enemy.fire(state)
         state.sc.blit(player.image,
                   (player.x - 15, player.y - 15))
+        state.sc.blit(enemy.image,
+                  (enemy.x, enemy.y))          
         state.bullets.draw(state.sc)
         pygame.display.update()
         clock.tick(FPS)
