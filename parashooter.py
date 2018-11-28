@@ -74,6 +74,7 @@ class Player(pygame.sprite.Sprite):
         if now - self.last_fire_time > self.fire_delay:
             Bullet(self.x, self.y, velocity).add(state.bullets)
             self.last_fire_time = now
+            
 
 
 class Bullet(pygame.sprite.Sprite):
@@ -100,16 +101,15 @@ class Bullet(pygame.sprite.Sprite):
 
 class Enemy(Player):
     x = 300
-    y = 0
+    y = 100
     color = RED
+    angle_rad = 4.71239
     def __init__(self, state):
-        width, height = state.sc.get_size()
-        self.x = width / 30
-        self.y = height / 30
         pygame.sprite.Sprite.__init__(self)
         self.image = pygame.Surface((30, 30))
         self.image.fill(self.color)
         self.rect = self.image.get_rect()
+        
 
 
 # Инициализация
@@ -147,6 +147,7 @@ def main():
             player.move(x=1, y=0)
         if mouse_buttons[0]:
             player.fire(state)
+        enemy.fire(state)
         state.sc.blit(player.image,
                   (player.x - 15, player.y - 15))
         state.sc.blit(enemy.image,
