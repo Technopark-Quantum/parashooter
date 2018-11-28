@@ -35,10 +35,10 @@ class State:
 
 
 class Player(pygame.sprite.Sprite):
-    x = 0
-    y = 0
+    x = 300
+    y = 400
     angle_rad = 0
-    fire_delay = 0
+    fire_delay = 0.0001
     last_fire_time = 0
     color = GREEN
     hp = 10
@@ -113,17 +113,17 @@ def main():
     scores = font.render('Очки:' + str(player.scores), 1, WHITE)	
     hp = font.render('Жизни:' + str(player.hp), 0, WHITE)	
   
-
     while 1:
         state.sc.fill(BLACK)
-        state.sc.blit(scores, (50, 10))
-        state.sc.blit(hp, (100, 10))
+        state.sc.blit(scores, (100, 10))
+        state.sc.blit(hp, (170, 10))
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
+                print('Я пытаюсь выйти!')
+                pygame.quit()
                 sys.exit()
         # keys = pygame.key.get_pressed()
         mouse = pygame.mouse.get_pos()
-        print(mouse)
         mouse_buttons = pygame.mouse.get_pressed()
         player.rotate(mouse)
         if mouse_buttons[0]:
