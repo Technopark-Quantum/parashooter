@@ -30,7 +30,7 @@ class State:
     def __init__(self):
         self.player = None
         self.bullets = pygame.sprite.Group()
-        self.targets = pygame.sprite.Group()
+        self.enemies = pygame.sprite.Group()
         self.sc = pygame.display.set_mode((WIDTH, HEIGHT))
 
 
@@ -94,11 +94,18 @@ class Bullet(pygame.sprite.Sprite):
         self.distance += sqrt(x_vel**2 + y_vel**2)
 
 
-class Target:
-    x = 0
+class Enemy(Player):
+    x = 300
     y = 0
-    def __init__(self):
-        pass
+    color = RED
+    def __init__(self, state):
+        width, height = state.sc.get_size()
+        self.x = width / 30
+        self.y = height / 30
+        pygame.sprite.Sprite.__init__(self)
+        self.image = pygame.Surface((30, 30))
+        self.image.fill(self.color)
+        self.rect = self.image.get_rect()
 
 
 # Инициализация
@@ -109,6 +116,7 @@ def main():
     clock = pygame.time.Clock()
     state = State()
     player = Player(state)
+    enemy = Enemy(state)
     font = pygame.font.SysFont('arial', 16)
     scores = font.render('Очки:' + str(player.scores), 1, WHITE)	
     hp = font.render('Жизни:' + str(player.hp), 0, WHITE)	
@@ -119,7 +127,6 @@ def main():
         state.sc.blit(hp, (170, 10))
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
-                print('Я пытаюсь выйти!')
                 pygame.quit()
                 sys.exit()
         # keys = pygame.key.get_pressed()
@@ -130,6 +137,8 @@ def main():
             player.fire(state)
         state.sc.blit(player.image,
                   (player.x - 15, player.y - 15))
+        state.sc.blit(enemy.image,
+                  (enemy.x, enemy.y))          
         state.bullets.draw(state.sc)
         pygame.display.update()
         clock.tick(FPS)
