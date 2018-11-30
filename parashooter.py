@@ -8,8 +8,8 @@ import pygame
 # Секция констант
 # Тут будем хранить настройки игры
 
-WIDTH = 800
-HEIGHT = 600
+WIDTH = 1000
+HEIGHT = 1000
 
 
 WHITE = (255, 255, 255)
@@ -30,25 +30,32 @@ class State:
     def __init__(self):
         self.player = None
         self.bullets = pygame.sprite.Group()
-        self.targets = pygame.sprite.Group()
+        self.enemies = pygame.sprite.Group()
         self.sc = pygame.display.set_mode((WIDTH, HEIGHT))
 
 
 class Player(pygame.sprite.Sprite):
-    x = 0
-    y = 0
+    x = 300
+    y = 400
     angle_rad = 0
-    fire_delay = 0.0
+
+
+    fire_delay = 0.05
     last_fire_time = 0
-    color = RED
+    color = GREEN
+    hp = 10
+    scores = 0
+
 
     def __init__(self, state):
         width, height = state.sc.get_size()
         self.x = width / 2
         self.y = height / 2
         pygame.sprite.Sprite.__init__(self)
-        self.image = pygame.Surface((30, 30))
-        self.image.fill(self.color)
+
+        self.image = pygame.image.load('images/hero.png')
+        self.image.set_colorkey((255, 255, 255))
+
         self.rect = self.image.get_rect()
         state.player = self
 
@@ -59,6 +66,10 @@ class Player(pygame.sprite.Sprite):
         rads = atan2(-y,x)
         rads %= 2*pi
         self.angle_rad = rads
+        
+    def move(self, x, y):
+        self.x = self.x + x
+        self.y = self.y + y
 
     def fire(self, state):
         now = time()
@@ -70,16 +81,21 @@ class Player(pygame.sprite.Sprite):
             self.last_fire_time = now
 
 
+
 class Bullet(pygame.sprite.Sprite):
     velocity = (0,0)
+
     long_range = 400 # дальнобойность
+
     distance = 0
     color = WHITE
 
     def __init__(self, x, y, velocity):
         self.velocity = velocity
         pygame.sprite.Sprite.__init__(self)
-        self.image = pygame.Surface((10, 10))
+
+        self.image = pygame.Surface((2, 2))
+
         self.image.fill(self.color)
         self.rect = self.image.get_rect(center=(x, y))
 
@@ -92,11 +108,17 @@ class Bullet(pygame.sprite.Sprite):
         self.distance += sqrt(x_vel**2 + y_vel**2)
 
 
-class Target:
-    x = 0
-    y = 0
-    def __init__(self):
-        pass
+class Enemy(Player):
+    x = 300
+    y = 100
+    color = RED
+    angle_rad = 4.71239
+    def __init__(self, state):
+        pygame.sprite.Sprite.__init__(self)
+        self.image = pygame.Surface((30, 30))
+        self.image.fill(self.color)
+        self.rect = self.image.get_rect()
+        state.enemies.add(self)
 
 
 # Инициализация
@@ -107,20 +129,45 @@ def main():
     clock = pygame.time.Clock()
     state = State()
     player = Player(state)
-
+    enemy = Enemy(state)
+    font = pygame.font.SysFont('arial', 16)
+    scores = font.render('Очки:' + str(player.scores), 1, WHITE)	
+    hp = font.render('Жизни:' + str(player.hp), 0, WHITE)	
+  
     while 1:
         state.sc.fill(BLACK)
+        state.sc.blit(scores, (100, 10))
+        state.sc.blit(hp, (170, 10))
+        # Перехват событий
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
+                pygame.quit()
                 sys.exit()
-        # keys = pygame.key.get_pressed()
+        keys = pygame.key.get_pressed()
         mouse = pygame.mouse.get_pos()
         mouse_buttons = pygame.mouse.get_pressed()
         player.rotate(mouse)
+        if keys[pygame.K_w]:
+            player.move(x=0, y=-1)
+        if keys[pygame.K_a]:
+            player.move(x=-1, y=0)
+        if keys[pygame.K_s]:
+            player.move(x=0, y=1)
+        if keys[pygame.K_d]:
+            player.move(x=1, y=0)
         if mouse_buttons[0]:
             player.fire(state)
+        # События игры
+        collisions = pygame.sprite.groupcollide(state.enemies,state.bullets,False,False)
+        for enemy, bullets in collisions.items():
+            enemy.kill()
+            for bullet in bullets:
+                bullet.kill()
+        
+        # Отрисовка
         state.sc.blit(player.image,
                   (player.x - 15, player.y - 15))
+        state.enemies.draw(state.sc)       
         state.bullets.draw(state.sc)
         pygame.display.update()
         clock.tick(FPS)
