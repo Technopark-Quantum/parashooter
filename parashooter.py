@@ -113,7 +113,7 @@ class Bullet(pygame.sprite.Sprite):
 
 class Enemy(Player):
 
-    x = random.randint(1, 1000)
+    x = 0
     y = 50
     color = RED
     def __init__(self, state):
@@ -124,6 +124,23 @@ class Enemy(Player):
         self.image = pygame.image.load(image)
         self.rect = self.image.get_rect()
         state.enemies.add(self)
+        self.x = random.randint(1, 1000)
+        self.rect.x = self.x
+        self.rect.y = self.y
+      
+spawn_delay = 7
+last_spawn  = 0
+
+def spawn(state, last_spawn):
+	now = time()
+	delta = now - last_spawn
+	if delta >= spawn_delay:
+		Enemy(state)
+		last_spawn = now
+		
+
+	
+	  
 
 def main():
     pygame.init()
@@ -131,7 +148,6 @@ def main():
     clock = pygame.time.Clock()
     state = State()
     player = Player(state)
-    enemy = Enemy(state)
     font = pygame.font.SysFont('arial', 16)
     scores = font.render('Очки:' + str(player.scores), 1, WHITE)	
     hp = font.render('Жизни:' + str(player.hp), 0, WHITE)	
@@ -140,6 +156,7 @@ def main():
         state.sc.fill(BLACK)
         state.sc.blit(scores, (100, 10))
         state.sc.blit(hp, (170, 10))
+        spawn(state, last_spawn)
         # Перехват событий
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
