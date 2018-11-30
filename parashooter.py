@@ -1,5 +1,6 @@
 # Секция импортов
 import sys
+import random
 from time import time
 from math import sin, cos, atan2, pi, sqrt
 
@@ -8,8 +9,8 @@ import pygame
 # Секция констант
 # Тут будем хранить настройки игры
 
-WIDTH = 1600
-HEIGHT = 1500
+WIDTH = 1000
+HEIGHT = 1000
 
 
 WHITE = (255, 255, 255)
@@ -17,6 +18,8 @@ BLACK = (0, 0, 0)
 RED = (140, 10, 10)
 GREEN = (10, 140, 10)
 BLUE = (10, 10, 140)
+YELLOW = (255, 227, 0)
+
 
 COLORS = [WHITE, BLACK, RED, GREEN, BLUE]
 
@@ -81,7 +84,7 @@ class Bullet(pygame.sprite.Sprite):
     velocity = (0,0)
     long_range = 800 # дальнобойность
     distance = 0
-    color = WHITE
+    color = YELLOW
 
     def __init__(self, x, y, velocity):
         self.velocity = velocity
@@ -100,17 +103,17 @@ class Bullet(pygame.sprite.Sprite):
 
 
 class Enemy(Player):
-    x = 300
-    y = 100
+
+    x = random.randint(1, 1000)
+    y = 50
     color = RED
-    angle_rad = 4.71239
     def __init__(self, state):
         pygame.sprite.Sprite.__init__(self)
         self.image = pygame.Surface((30, 30))
-        self.image.fill(self.color)
+        images = ['images/enemy/fox.png', 'images/enemy/bear.png', 'images/enemy/hare.png']
+        image = random.choice(images)
+        self.image = pygame.image.load(image)
         self.rect = self.image.get_rect()
-        
-
 
 # Инициализация
 
@@ -147,7 +150,6 @@ def main():
             player.move(x=1, y=0)
         if mouse_buttons[0]:
             player.fire(state)
-        enemy.fire(state)
         state.sc.blit(player.image,
                   (player.x - 15, player.y - 15))
         state.sc.blit(enemy.image,
