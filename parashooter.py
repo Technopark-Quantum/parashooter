@@ -1,5 +1,6 @@
 # Секция импортов
 import sys
+import random
 from time import time
 from math import sin, cos, atan2, pi, sqrt
 
@@ -17,6 +18,8 @@ BLACK = (0, 0, 0)
 RED = (140, 10, 10)
 GREEN = (10, 140, 10)
 BLUE = (10, 10, 140)
+YELLOW = (255, 227, 0)
+
 
 COLORS = [WHITE, BLACK, RED, GREEN, BLUE]
 
@@ -88,7 +91,7 @@ class Bullet(pygame.sprite.Sprite):
     long_range = 400 # дальнобойность
 
     distance = 0
-    color = WHITE
+    color = YELLOW
 
     def __init__(self, x, y, velocity):
         self.velocity = velocity
@@ -109,19 +112,18 @@ class Bullet(pygame.sprite.Sprite):
 
 
 class Enemy(Player):
-    x = 300
-    y = 100
+
+    x = random.randint(1, 1000)
+    y = 50
     color = RED
-    angle_rad = 4.71239
     def __init__(self, state):
         pygame.sprite.Sprite.__init__(self)
         self.image = pygame.Surface((30, 30))
-        self.image.fill(self.color)
+        images = ['images/enemy/fox.png', 'images/enemy/bear.png', 'images/enemy/hare.png']
+        image = random.choice(images)
+        self.image = pygame.image.load(image)
         self.rect = self.image.get_rect()
         state.enemies.add(self)
-
-
-# Инициализация
 
 def main():
     pygame.init()
