@@ -120,7 +120,7 @@ class Enemy(Player):
     def __init__(self, state):
         pygame.sprite.Sprite.__init__(self)
         self.image = pygame.Surface((30, 30))
-        images = ['images/enemy/fox.png', 'images/enemy/bear.png', 'images/enemy/hare.png']
+        images = ['images/enemy/fox.png', 'images/enemy/bear.png', 'images/enemy/hare.png', 'images/enemy/spider.png']
         image = random.choice(images)
         self.image = pygame.image.load(image)
         self.rect = self.image.get_rect()
