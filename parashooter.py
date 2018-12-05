@@ -31,6 +31,7 @@ BULLET_SPEED = 5
 
 class State:
     def __init__(self):
+        self.last_spawn = 0
         self.player = None
         self.bullets = pygame.sprite.Group()
         self.enemies = pygame.sprite.Group()
@@ -128,15 +129,15 @@ class Enemy(Player):
         self.rect.x = self.x
         self.rect.y = self.y
       
-spawn_delay = 7
-last_spawn  = 0
+spawn_delay = 5
+# last_spawn  = 0
 
-def spawn(state, last_spawn):
+def spawn(state):
 	now = time()
-	delta = now - last_spawn
+	delta = now - state.last_spawn
 	if delta >= spawn_delay:
 		Enemy(state)
-		last_spawn = now
+		state.last_spawn = now
 		
 
 	
@@ -156,7 +157,7 @@ def main():
         state.sc.fill(BLACK)
         state.sc.blit(scores, (100, 10))
         state.sc.blit(hp, (170, 10))
-        spawn(state, last_spawn)
+        spawn(state)
         # Перехват событий
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
