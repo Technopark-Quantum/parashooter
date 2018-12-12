@@ -112,32 +112,50 @@ class Bullet(pygame.sprite.Sprite):
         self.distance += sqrt(x_vel**2 + y_vel**2)
 
 
-class Enemy(Player):
+ 
+class Bear(Player):
+    fire_delay = 0.1
+    hp = 30
+    image_path = 'images/enemy/bear.png'
+    
 
-    x = 0
-    y = 50
-    color = RED
     def __init__(self, state):
         pygame.sprite.Sprite.__init__(self)
-        self.image = pygame.Surface((30, 30))
-        images = ['images/enemy/fox.png', 'images/enemy/bear.png', 'images/enemy/hare.png']
-        image = random.choice(images)
-        self.image = pygame.image.load(image)
+        self.image = pygame.image.load(self.image_path)
         self.rect = self.image.get_rect()
         state.enemies.add(self)
         self.x = random.randint(1, 1000)
+        self.y = random.randint(1, 3000) 
         self.rect.x = self.x
         self.rect.y = self.y
-      
+
+
+
+class Fox(Bear):
+    fire_delay = 0.5
+    hp = 5
+    image_path = 'images/enemy/fox.png'
+
+
+
+class Zayc(Bear):
+    fire_delay = 0.5
+    hp = 5
+    image_path = 'images/enemy/hare.png'
+
+    
+
 spawn_delay = 5
 # last_spawn  = 0
 
 def spawn(state):
-	now = time()
-	delta = now - state.last_spawn
-	if delta >= spawn_delay:
-		Enemy(state)
-		state.last_spawn = now
+    now = time()
+    delta = now - state.last_spawn
+    if delta >= spawn_delay:
+        enemies = [Bear, Fox, Zayc]
+        enemy_class = random.choice(enemies)
+        enemy_class(state)
+        state.last_spawn = now
 		
 
 	
