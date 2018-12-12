@@ -69,6 +69,7 @@ class Player(pygame.sprite.Sprite):
         rads %= 2*pi
         self.angle_rad = rads
         
+        
     def move(self, x, y):
         self.rect.x = self.rect.x + x
         self.rect.y = self.rect.y + y
@@ -83,6 +84,19 @@ class Player(pygame.sprite.Sprite):
             Bullet(self.rect.x, self.rect.y, velocity).add(state.bullets)
             self.last_fire_time = now
 
+    def enemy_punch(self, enemy):
+        self.hp = self.hp -1
+        fly_distance = 100
+        x = self.rect.x - enemy.rect.x 
+        y = self.rect.y - enemy.rect.y
+        rads = atan2(-y,x)
+        rads %= 2*pi
+        x_vel, y_vel  = fly_distance * cos(rads), fly_distance * sin(rads)
+        self.rect.x   += x_vel
+        self.rect.y   -= y_vel
+        
+
+        
 
 
 class Bullet(pygame.sprite.Sprite):
@@ -138,6 +152,7 @@ def spawn(state):
 		Enemy(state)
 		state.last_spawn = now
 		
+		
 
 	
 	  
@@ -148,6 +163,7 @@ def main():
     clock = pygame.time.Clock()
     state = State()
     Player(state)
+    font = pygame.font.SysFont('arial', 16)
 
     while 1:
         state.sc.fill(BLACK)
@@ -179,7 +195,7 @@ def main():
                 bullet.kill()
         enemy_collision = pygame.sprite.spritecollideany(state.player,state.enemies)
         if enemy_collision:
-             state.player.hp -= 1
+             state.player.enemy_punch(enemy_collision)
 	    
         
         # Отрисовка
@@ -187,7 +203,6 @@ def main():
                   (state.player.rect.x - 15, state.player.rect.y - 15))
         state.enemies.draw(state.sc)       
         state.bullets.draw(state.sc)
-        font = pygame.font.SysFont('arial', 16)
         scores = font.render('Очки:' + str(state.player.scores), 1, WHITE)	
         hp = font.render('Жизни:' + str(state.player.hp), 0, WHITE)	
         state.sc.blit(scores, (100, 10))
