@@ -39,8 +39,6 @@ class State:
 
 
 class Player(pygame.sprite.Sprite):
-    x = 300
-    y = 400
     angle_rad = 0
 
 
@@ -53,27 +51,29 @@ class Player(pygame.sprite.Sprite):
 
     def __init__(self, state):
         width, height = state.sc.get_size()
-        self.x = width / 2
-        self.y = height / 2
         pygame.sprite.Sprite.__init__(self)
 
         self.image = pygame.image.load('images/hero.png')
         self.image.set_colorkey((255, 255, 255))
 
         self.rect = self.image.get_rect()
+        self.rect.x = width / 2
+        self.rect.y = height / 2
         state.player = self
 
     def rotate(self, mouse_coords):
         mouse_x, mouse_y = mouse_coords
-        x = mouse_x - self.x
-        y = mouse_y - self.y
+        x = mouse_x - self.rect.x
+        y = mouse_y - self.rect.y
         rads = atan2(-y,x)
         rads %= 2*pi
         self.angle_rad = rads
         
+        
     def move(self, x, y):
-        self.x = self.x + x
-        self.y = self.y + y
+        self.rect.x = self.rect.x + x
+        self.rect.y = self.rect.y + y
+        
 
     def fire(self, state):
         now = time()
@@ -81,9 +81,22 @@ class Player(pygame.sprite.Sprite):
             BULLET_SPEED * cos(self.angle_rad),
             BULLET_SPEED * sin(self.angle_rad))
         if now - self.last_fire_time > self.fire_delay:
-            Bullet(self.x, self.y, velocity).add(state.bullets)
+            Bullet(self.rect.x, self.rect.y, velocity).add(state.bullets)
             self.last_fire_time = now
 
+    def enemy_punch(self, enemy):
+        self.hp = self.hp -1
+        fly_distance = 100
+        x = self.rect.x - enemy.rect.x 
+        y = self.rect.y - enemy.rect.y
+        rads = atan2(-y,x)
+        rads %= 2*pi
+        x_vel, y_vel  = fly_distance * cos(rads), fly_distance * sin(rads)
+        self.rect.x   += x_vel
+        self.rect.y   -= y_vel
+        
+
+        
 
 
 class Bullet(pygame.sprite.Sprite):
@@ -151,6 +164,7 @@ def spawn(state):
 		Enemy(state)
 		state.last_spawn = now
 		
+		
 
 	
 	  
@@ -160,15 +174,11 @@ def main():
 
     clock = pygame.time.Clock()
     state = State()
-    player = Player(state)
+    Player(state)
     font = pygame.font.SysFont('arial', 16)
-    scores = font.render('Очки:' + str(player.scores), 1, WHITE)	
-    hp = font.render('Жизни:' + str(player.hp), 0, WHITE)	
-  
+
     while 1:
         state.sc.fill(BLACK)
-        state.sc.blit(scores, (100, 10))
-        state.sc.blit(hp, (170, 10))
         spawn(state)
         # Перехват событий
         for event in pygame.event.get():
@@ -178,33 +188,45 @@ def main():
         keys = pygame.key.get_pressed()
         mouse = pygame.mouse.get_pos()
         mouse_buttons = pygame.mouse.get_pressed()
-        player.rotate(mouse)
+        state.player.rotate(mouse)
         if keys[pygame.K_w]:
-            player.move(x=0, y=-1)
+            state.player.move(x=0, y=-1)
         if keys[pygame.K_a]:
-            player.move(x=-1, y=0)
+            state.player.move(x=-1, y=0)
         if keys[pygame.K_s]:
-            player.move(x=0, y=1)
+            state.player.move(x=0, y=1)
         if keys[pygame.K_d]:
-            player.move(x=1, y=0)
+            state.player.move(x=1, y=0)
         if mouse_buttons[0]:
-            player.fire(state)
+            state.player.fire(state)
         # События игры
         collisions = pygame.sprite.groupcollide(state.enemies,state.bullets,False,False)
         for enemy, bullets in collisions.items():
             enemy.kill()
             for bullet in bullets:
                 bullet.kill()
+        enemy_collision = pygame.sprite.spritecollideany(state.player,state.enemies)
+        if enemy_collision:
+             state.player.enemy_punch(enemy_collision)
+	    
         
         # Отрисовка
-        state.sc.blit(player.image,
-                  (player.x - 15, player.y - 15))
+        state.sc.blit(state.player.image,
+                  (state.player.rect.x - 15, state.player.rect.y - 15))
         state.enemies.draw(state.sc)       
         state.bullets.draw(state.sc)
+        scores = font.render('Очки:' + str(state.player.scores), 1, WHITE)	
+        hp = font.render('Жизни:' + str(state.player.hp), 0, WHITE)	
+        state.sc.blit(scores, (100, 10))
+        state.sc.blit(hp, (170, 10))
         pygame.display.update()
+        #Условия завершения 
+        if state.player.hp <= 0:
+            pygame.quit()
+            sys.exit()
         clock.tick(FPS)
         state.bullets.update()
-
+        
 
 if __name__ == '__main__':
     main()
