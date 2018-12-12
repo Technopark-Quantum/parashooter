@@ -148,14 +148,9 @@ def main():
     clock = pygame.time.Clock()
     state = State()
     Player(state)
-    font = pygame.font.SysFont('arial', 16)
-    scores = font.render('Очки:' + str(state.player.scores), 1, WHITE)	
-    hp = font.render('Жизни:' + str(state.player.hp), 0, WHITE)	
-  
+
     while 1:
         state.sc.fill(BLACK)
-        state.sc.blit(scores, (100, 10))
-        state.sc.blit(hp, (170, 10))
         spawn(state)
         # Перехват событий
         for event in pygame.event.get():
@@ -192,8 +187,13 @@ def main():
                   (state.player.rect.x - 15, state.player.rect.y - 15))
         state.enemies.draw(state.sc)       
         state.bullets.draw(state.sc)
+        font = pygame.font.SysFont('arial', 16)
+        scores = font.render('Очки:' + str(state.player.scores), 1, WHITE)	
+        hp = font.render('Жизни:' + str(state.player.hp), 0, WHITE)	
+        state.sc.blit(scores, (100, 10))
+        state.sc.blit(hp, (170, 10))
         pygame.display.update()
-        #Условия завершения
+        #Условия завершения 
         if state.player.hp <= 0:
             pygame.quit()
             sys.exit()
