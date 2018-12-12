@@ -119,7 +119,6 @@ class Enemy(Player):
     color = RED
     def __init__(self, state):
         pygame.sprite.Sprite.__init__(self)
-        self.image = pygame.Surface((30, 30))
         images = ['images/enemy/fox.png', 'images/enemy/bear.png', 'images/enemy/hare.png', 'images/enemy/spider.png']
         image = random.choice(images)
         self.image = pygame.image.load(image)
@@ -128,7 +127,20 @@ class Enemy(Player):
         self.x = random.randint(1, 1000)
         self.rect.x = self.x
         self.rect.y = self.y
-      
+        
+class Boost(pygame.sprite.Sprite):
+    pass
+    
+class Heal(Boost):
+    pass
+    
+
+class Speed(Boost):
+    pass
+
+
+
+
 spawn_delay = 5
 # last_spawn  = 0
 
