@@ -13,6 +13,7 @@ WIDTH = 1000
 HEIGHT = 1000
 
 
+
 WHITE = (255, 255, 255)
 BLACK = (0, 0, 0)
 RED = (140, 10, 10)
@@ -32,9 +33,11 @@ BULLET_SPEED = 5
 class State:
     def __init__(self):
         self.last_spawn = 0
+        self.boost_rate = 1
         self.player = None
         self.bullets = pygame.sprite.Group()
         self.enemies = pygame.sprite.Group()
+        self.boosts = pygame.sprite.Group()
         self.sc = pygame.display.set_mode((WIDTH, HEIGHT))
 
 
@@ -140,18 +143,34 @@ class Enemy(Player):
         self.x = random.randint(1, 1000)
         self.rect.x = self.x
         self.rect.y = self.y
+    def destroy(self, state):
+        possible_boost=[Heal, Speed]
+        if state.boost_rate >= random.random():
+            boost_to_create = random.choice(possible_boost)
+            boost_to_create(state, self)
+        self.kill()
         
 class Boost(pygame.sprite.Sprite):
     pass
     
 class Heal(Boost):
-    pass
+    def __init__(self, state, enemy):
+        pygame.sprite.Sprite.__init__(self)
+        self.image = pygame.image.load('images/boosts/heal.png')
+        self.rect = self.image.get_rect()
+        self.rect.x = enemy.rect.x
+        self.rect.y = enemy.rect.y
+        self.add(state.boosts)
     
 
 class Speed(Boost):
-    pass
-
-
+   def __init__(self, state, enemy):
+       pygame.sprite.Sprite.__init__(self)
+       self.image = pygame.image.load('images/boosts/bread.png')
+       self.rect = self.image.get_rect()
+       self.rect.x = enemy.rect.x
+       self.rect.y = enemy.rect.y
+       self.add(state.boosts)
 
 
 spawn_delay = 5
@@ -202,7 +221,7 @@ def main():
         # События игры
         collisions = pygame.sprite.groupcollide(state.enemies,state.bullets,False,False)
         for enemy, bullets in collisions.items():
-            enemy.kill()
+            enemy.destroy(state)
             for bullet in bullets:
                 bullet.kill()
         enemy_collision = pygame.sprite.spritecollideany(state.player,state.enemies)
@@ -215,6 +234,7 @@ def main():
                   (state.player.rect.x - 15, state.player.rect.y - 15))
         state.enemies.draw(state.sc)       
         state.bullets.draw(state.sc)
+        state.boosts.draw(state.sc)
         scores = font.render('Очки:' + str(state.player.scores), 1, WHITE)	
         hp = font.render('Жизни:' + str(state.player.hp), 0, WHITE)	
         state.sc.blit(scores, (100, 10))
