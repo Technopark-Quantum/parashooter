@@ -35,7 +35,7 @@ class State:
         self.bullets = pygame.sprite.Group()
         self.enemies = pygame.sprite.Group()
         self.sc = pygame.display.set_mode((WIDTH, HEIGHT))
-
+        self.scores = 0
 
 class Player(pygame.sprite.Sprite):
     angle_rad = 0
@@ -45,7 +45,6 @@ class Player(pygame.sprite.Sprite):
     last_fire_time = 0
     color = GREEN
     hp = 10
-    scores = 0
 
 
     def __init__(self, state):
@@ -128,7 +127,9 @@ class Enemy(Player):
         x_vel, y_vel  = self.throw_distance * cos(rads), self.throw_distance * sin(rads)
         player.rect.x   += x_vel
         player.rect.y   -= y_vel
-    
+    def destroy(self, state):   
+        state.scores += 5
+        self.kill()
  
 class Bear(Enemy):
     hp = 30
@@ -225,13 +226,12 @@ def main():
         # События игры
         collisions = pygame.sprite.groupcollide(state.enemies,state.bullets,False,False)
         for enemy, bullets in collisions.items():
-            enemy.kill()
+            enemy.destroy(state)
             for bullet in bullets:
                 bullet.kill()
         enemy = pygame.sprite.spritecollideany(state.player,state.enemies)
         if enemy:
-             enemy.punch(state.player)
-	    
+	        enemy.punch(state.player)
         state.bullets.update()
         state.enemies.update()
         # Отрисовка
@@ -239,7 +239,7 @@ def main():
                   (state.player.rect.x - 15, state.player.rect.y - 15))
         state.enemies.draw(state.sc)       
         state.bullets.draw(state.sc)
-        scores = font.render('Очки:' + str(state.player.scores), 1, WHITE)	
+        scores = font.render('Очки:' + str(state.scores), 1, WHITE)	
         hp = font.render('Жизни:' + str(state.player.hp), 0, WHITE)	
         state.sc.blit(scores, (100, 10))
         state.sc.blit(hp, (170, 10))
