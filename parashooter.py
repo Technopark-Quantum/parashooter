@@ -6,25 +6,12 @@ from math import sin, cos, atan2, pi, sqrt
 
 import pygame
 
+from enemies import Bear, Fox, Zayc, Spider, Boss
+from settings import *
 # Секция констант
 # Тут будем хранить настройки игры
 
-WIDTH = 1000
-HEIGHT = 1000
 
-WHITE = (255, 255, 255)
-BLACK = (0, 0, 0)
-RED = (140, 10, 10)
-GREEN = (10, 140, 10)
-BLUE = (10, 10, 140)
-YELLOW = (255, 227, 0)
-
-
-COLORS = [WHITE, BLACK, RED, GREEN, BLUE]
-
-FPS = 60
-
-BULLET_SPEED = 5
 
 # Секция описания
 
@@ -35,7 +22,7 @@ class State:
         self.bullets = pygame.sprite.Group()
         self.enemies = pygame.sprite.Group()
         self.sc = pygame.display.set_mode((WIDTH, HEIGHT))
-
+        self.scores = 0
 
 class Player(pygame.sprite.Sprite):
     angle_rad = 0
@@ -45,7 +32,6 @@ class Player(pygame.sprite.Sprite):
     last_fire_time = 0
     color = GREEN
     hp = 10
-    scores = 0
 
 
     def __init__(self, state):
@@ -113,65 +99,7 @@ class Bullet(pygame.sprite.Sprite):
         self.rect.y   -= y_vel
         self.distance += sqrt(x_vel**2 + y_vel**2)
 
-class Enemy(Player):
-    damage = 1
-    throw_distance = 100
-    def update(self) :
-        self.rect.y -= random.randint(-5, 5)
-        self.rect.x += random.randint(-5, 5)
-    def punch(self, player):
-        player.hp = player.hp - self.damage
-        x = player.rect.x - self.rect.x 
-        y = player.rect.y - self.rect.y
-        rads = atan2(-y,x)
-        rads %= 2*pi
-        x_vel, y_vel  = self.throw_distance * cos(rads), self.throw_distance * sin(rads)
-        player.rect.x   += x_vel
-        player.rect.y   -= y_vel
-    
- 
-class Bear(Enemy):
-    hp = 30
-    image_path = 'images/enemy/bear.png'
-    
 
-    def __init__(self, state):
-        pygame.sprite.Sprite.__init__(self)
-        self.image = pygame.image.load(self.image_path)
-        self.rect = self.image.get_rect()
-        state.enemies.add(self)
-        self.x = random.randint(1, WIDTH)
-        self.y = random.randint(1, HEIGHT) 
-        self.rect.x = self.x
-        self.rect.y = self.y
-
-
-
-
-class Fox(Bear):
-    hp = 10
-    image_path = 'images/enemy/fox.png'
-
-
-
-class Zayc(Bear):
-    hp = 5
-    image_path = 'images/enemy/hare.png'
-
-    
-
-class Spider(Bear):
-    hp = 0.0001
-    image_path = 'images/enemy/spider.png'
-
-
-
-
-class Boss(Bear):
-    throw_distance = 500
-    damage = 5
-    hp = 100
-    image_path = 'images/enemy/boss.png'
  
 
 
@@ -225,21 +153,20 @@ def main():
         # События игры
         collisions = pygame.sprite.groupcollide(state.enemies,state.bullets,False,False)
         for enemy, bullets in collisions.items():
-            enemy.kill()
+            enemy.destroy(state)
             for bullet in bullets:
                 bullet.kill()
         enemy = pygame.sprite.spritecollideany(state.player,state.enemies)
         if enemy:
-             enemy.punch(state.player)
-	    
+	        enemy.punch(state.player)
         state.bullets.update()
-        state.enemies.update()
+        state.enemies.update(state)
         # Отрисовка
         state.sc.blit(state.player.image,
                   (state.player.rect.x - 15, state.player.rect.y - 15))
         state.enemies.draw(state.sc)       
         state.bullets.draw(state.sc)
-        scores = font.render('Очки:' + str(state.player.scores), 1, WHITE)	
+        scores = font.render('Очки:' + str(state.scores), 1, WHITE)	
         hp = font.render('Жизни:' + str(state.player.hp), 0, WHITE)	
         state.sc.blit(scores, (100, 10))
         state.sc.blit(hp, (170, 10))
