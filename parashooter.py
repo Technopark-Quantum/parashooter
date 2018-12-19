@@ -12,7 +12,6 @@ import pygame
 WIDTH = 1000
 HEIGHT = 1000
 
-
 WHITE = (255, 255, 255)
 BLACK = (0, 0, 0)
 RED = (140, 10, 10)
@@ -84,18 +83,8 @@ class Player(pygame.sprite.Sprite):
             Bullet(self.rect.x, self.rect.y, velocity).add(state.bullets)
             self.last_fire_time = now
 
-    def enemy_punch(self, enemy):
-        self.hp = self.hp -1
-        fly_distance = 100
-        x = self.rect.x - enemy.rect.x 
-        y = self.rect.y - enemy.rect.y
-        rads = atan2(-y,x)
-        rads %= 2*pi
-        x_vel, y_vel  = fly_distance * cos(rads), fly_distance * sin(rads)
-        self.rect.x   += x_vel
-        self.rect.y   -= y_vel
-        
 
+         
         
 
 
@@ -124,33 +113,79 @@ class Bullet(pygame.sprite.Sprite):
         self.rect.y   -= y_vel
         self.distance += sqrt(x_vel**2 + y_vel**2)
 
-
 class Enemy(Player):
+    damage = 1
+    throw_distance = 100
+    def update(self) :
+        self.rect.y -= random.randint(-5, 5)
+        self.rect.x += random.randint(-5, 5)
+    def punch(self, player):
+        player.hp = player.hp - self.damage
+        x = player.rect.x - self.rect.x 
+        y = player.rect.y - self.rect.y
+        rads = atan2(-y,x)
+        rads %= 2*pi
+        x_vel, y_vel  = self.throw_distance * cos(rads), self.throw_distance * sin(rads)
+        player.rect.x   += x_vel
+        player.rect.y   -= y_vel
+    
+ 
+class Bear(Enemy):
+    hp = 30
+    image_path = 'images/enemy/bear.png'
+    
 
-    x = 0
-    y = 50
-    color = RED
     def __init__(self, state):
         pygame.sprite.Sprite.__init__(self)
-        self.image = pygame.Surface((30, 30))
-        images = ['images/enemy/fox.png', 'images/enemy/bear.png', 'images/enemy/hare.png', 'images/enemy/spider.png']
-        image = random.choice(images)
-        self.image = pygame.image.load(image)
+        self.image = pygame.image.load(self.image_path)
         self.rect = self.image.get_rect()
         state.enemies.add(self)
-        self.x = random.randint(1, 1000)
+        self.x = random.randint(1, WIDTH)
+        self.y = random.randint(1, HEIGHT) 
         self.rect.x = self.x
         self.rect.y = self.y
-      
-spawn_delay = 5
+
+
+
+
+class Fox(Bear):
+    hp = 10
+    image_path = 'images/enemy/fox.png'
+
+
+
+class Zayc(Bear):
+    hp = 5
+    image_path = 'images/enemy/hare.png'
+
+    
+
+class Spider(Bear):
+    hp = 0.0001
+    image_path = 'images/enemy/spider.png'
+
+
+
+
+class Boss(Bear):
+    throw_distance = 500
+    damage = 5
+    hp = 100
+    image_path = 'images/enemy/boss.png'
+ 
+
+
+spawn_delay = 2
 # last_spawn  = 0
 
 def spawn(state):
-	now = time()
-	delta = now - state.last_spawn
-	if delta >= spawn_delay:
-		Enemy(state)
-		state.last_spawn = now
+    now = time()
+    delta = now - state.last_spawn
+    if delta >= spawn_delay:
+        enemies = [Bear, Fox, Zayc, Spider, Boss]
+        enemy_class = random.choice(enemies)
+        enemy_class(state)
+        state.last_spawn = now
 		
 		
 
@@ -193,11 +228,12 @@ def main():
             enemy.kill()
             for bullet in bullets:
                 bullet.kill()
-        enemy_collision = pygame.sprite.spritecollideany(state.player,state.enemies)
-        if enemy_collision:
-             state.player.enemy_punch(enemy_collision)
+        enemy = pygame.sprite.spritecollideany(state.player,state.enemies)
+        if enemy:
+             enemy.punch(state.player)
 	    
-        
+        state.bullets.update()
+        state.enemies.update()
         # Отрисовка
         state.sc.blit(state.player.image,
                   (state.player.rect.x - 15, state.player.rect.y - 15))
@@ -213,7 +249,7 @@ def main():
             pygame.quit()
             sys.exit()
         clock.tick(FPS)
-        state.bullets.update()
+
         
 
 if __name__ == '__main__':
