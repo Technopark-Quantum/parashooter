@@ -7,6 +7,7 @@ from settings import *
 class Enemy(pygame.sprite.Sprite):
     damage = 1
     throw_distance = 100
+    move_speed = 1 
     def __init__(self, state):
         width, height = state.sc.get_size()
         pygame.sprite.Sprite.__init__(self)
@@ -18,9 +19,14 @@ class Enemy(pygame.sprite.Sprite):
         self.rect.x = width / 2
         self.rect.y = height / 2
         state.player = self
-    def update(self) :
-        self.rect.y -= random.randint(-5, 5)
-        self.rect.x += random.randint(-5, 5)
+    def update(self, state) :
+        x = state.player.rect.x - self.rect.x 
+        y = state.player.rect.y - self.rect.y
+        rads = atan2(-y,x)
+        rads %= 2*pi
+        x_vel, y_vel  = self.move_speed * cos(rads), self.move_speed * sin(rads)
+        self.rect.x   += x_vel
+        self.rect.y   -= y_vel
     def punch(self, player):
         player.hp = player.hp - self.damage
         x = player.rect.x - self.rect.x 

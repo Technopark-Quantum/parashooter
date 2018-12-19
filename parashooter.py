@@ -160,7 +160,7 @@ def main():
         if enemy:
 	        enemy.punch(state.player)
         state.bullets.update()
-        state.enemies.update()
+        state.enemies.update(state)
         # Отрисовка
         state.sc.blit(state.player.image,
                   (state.player.rect.x - 15, state.player.rect.y - 15))
