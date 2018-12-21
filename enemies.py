@@ -3,6 +3,7 @@ import pygame
 import random
 from math import sin, cos, atan2, pi, sqrt
 from settings import *
+from lib import get_angle, get_velocity
 
 class Enemy(pygame.sprite.Sprite):
     damage = 1
@@ -19,21 +20,16 @@ class Enemy(pygame.sprite.Sprite):
         self.rect.x = width / 2
         self.rect.y = height / 2
         state.player = self
-    def update(self, state) :
-        x = state.player.rect.x - self.rect.x 
-        y = state.player.rect.y - self.rect.y
-        rads = atan2(-y,x)
-        rads %= 2*pi
-        x_vel, y_vel  = self.move_speed * cos(rads), self.move_speed * sin(rads)
+    def update(self, state):
+        angle = get_angle((state.player.rect.x, state.player.rect.y),
+                         (self.rect.x, self.rect.y))
+        x_vel, y_vel  = get_velocity(angle, self.move_speed)
         self.rect.x   += x_vel
         self.rect.y   -= y_vel
     def punch(self, player):
         player.hp = player.hp - self.damage
-        x = player.rect.x - self.rect.x 
-        y = player.rect.y - self.rect.y
-        rads = atan2(-y,x)
-        rads %= 2*pi
-        x_vel, y_vel  = self.throw_distance * cos(rads), self.throw_distance * sin(rads)
+        angle = get_angle((player.rect.x, player.rect.y), (self.rect.x, self.rect.y))
+        x_vel, y_vel  = get_velocity(angle, self.throw_distance)
         player.rect.x   += x_vel
         player.rect.y   -= y_vel
     def destroy(self, state):   
