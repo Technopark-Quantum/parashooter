@@ -2,14 +2,14 @@
 import sys
 import random
 from time import time
-from math import sin, cos, atan2, pi, sqrt
+from math import sqrt
 
 import pygame
 
 from enemies import Bear, Fox, Zayc, Spider, Boss
 from settings import *
-# Секция констант
-# Тут будем хранить настройки игры
+from lib import get_angle, get_velocity 
+
 
 
 
@@ -47,11 +47,7 @@ class Player(pygame.sprite.Sprite):
         state.player = self
 
     def rotate(self, mouse_coords):
-        mouse_x, mouse_y = mouse_coords
-        x = mouse_x - self.rect.x
-        y = mouse_y - self.rect.y
-        rads = atan2(-y,x)
-        rads %= 2*pi
+        rads = get_angle( mouse_coords, (self.rect.x, self.rect.y))
         self.angle_rad = rads
         
         
@@ -62,9 +58,7 @@ class Player(pygame.sprite.Sprite):
 
     def fire(self, state):
         now = time()
-        velocity = (
-            BULLET_SPEED * cos(self.angle_rad),
-            BULLET_SPEED * sin(self.angle_rad))
+        velocity = get_velocity(self.angle_rad,BULLET_SPEED)
         if now - self.last_fire_time > self.fire_delay:
             Bullet(self.rect.x, self.rect.y, velocity).add(state.bullets)
             self.last_fire_time = now
