@@ -4,11 +4,12 @@ import random
 from math import sin, cos, atan2, pi, sqrt
 from settings import *
 from lib import get_angle, get_velocity
+from boosts import Heal, Speed, FireDelay
 
 class Enemy(pygame.sprite.Sprite):
     damage = 1
     throw_distance = 100
-    move_speed = 1 
+    move_speed = 2
     def __init__(self, state):
         width, height = state.sc.get_size()
         pygame.sprite.Sprite.__init__(self)
@@ -34,7 +35,13 @@ class Enemy(pygame.sprite.Sprite):
         player.rect.y   -= y_vel
     def destroy(self, state):   
         state.scores += 5
+        boosts = [Heal, Speed, FireDelay]
+        boost_class = random.choice(boosts)
+        if state.boost_prob >= random.random():
+            boost_class(state,self.rect.x,self.rect.y)
         self.kill()
+		
+		
  
 class Bear(Enemy):
     hp = 30
