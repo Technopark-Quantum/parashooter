@@ -159,6 +159,9 @@ def main():
 	        enemy.punch(state.player)
         state.bullets.update()
         state.enemies.update(state)
+        boost = pygame.sprite.spritecollideany(state.player,state.boosts)
+        if boost:
+            boost.activate(state)
         # Отрисовка
         state.sc.blit(state.player.image,
                   (state.player.rect.x - 15, state.player.rect.y - 15))
